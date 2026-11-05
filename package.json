@@ -1,0 +1,12 @@
+{
+  "name": "motricidad-web-estatica",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "baseline": "node scripts/capture-baseline.mjs",
+    "test": "playwright test"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.64.1"
+  }
+}

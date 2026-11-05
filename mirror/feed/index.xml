@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?><rss version="2.0"
+	xmlns:content="http://purl.org/rss/1.0/modules/content/"
+	xmlns:wfw="http://wellformedweb.org/CommentAPI/"
+	xmlns:dc="http://purl.org/dc/elements/1.1/"
+	xmlns:atom="http://www.w3.org/2005/Atom"
+	xmlns:sy="http://purl.org/rss/1.0/modules/syndication/"
+	xmlns:slash="http://purl.org/rss/1.0/modules/slash/"
+	>
+
+<channel>
+	<title>Motricidad Laboral</title>
+	<atom:link href="https://motricidadlaboral.com/feed/" rel="self" type="application/rss+xml" />
+	<link>https://motricidadlaboral.com</link>
+	<description>Medicina del Deporte</description>
+	<lastBuildDate>Tue, 29 Mar 2022 09:45:17 +0000</lastBuildDate>
+	<language>es</language>
+	<sy:updatePeriod>
+	hourly	</sy:updatePeriod>
+	<sy:updateFrequency>
+	1	</sy:updateFrequency>
+	
+	<item>
+		<title>El retorno de la inversión en la salud laboral.</title>
+		<link>https://motricidadlaboral.com/el-retorno-de-la-inversion-en-la-salud-laboral/</link>
+		
+		<dc:creator><![CDATA[Comunicación Motricidad]]></dc:creator>
+		<pubDate>Thu, 03 Feb 2022 08:15:09 +0000</pubDate>
+				<category><![CDATA[Noticias]]></category>
+		<guid isPermaLink="false">https://motricidadlaboral.com/?p=5109</guid>
+
+					<description><![CDATA[A nadie le cabe la menor duda de que una empresa es una agrupación de personas y sistemas para llevar a cabo procesos o actividades con el fin de obtener un beneficio. De esta definición podemos tener claro que el correcto funcionamiento de una empresa requiere de la eficiencia de los procesos, gracias a los [&#8230;]]]></description>
+		
+		
+		
+			</item>
+		<item>
+		<title>El índice de sostenibilidad musculoesquelética.</title>
+		<link>https://motricidadlaboral.com/el-indice-de-sostenibilidad-musculoesqueletica/</link>
+		
+		<dc:creator><![CDATA[Comunicación Motricidad]]></dc:creator>
+		<pubDate>Thu, 09 Dec 2021 11:00:21 +0000</pubDate>
+				<category><![CDATA[Noticias]]></category>
+		<guid isPermaLink="false">https://motricidadlaboral.com/?p=4813</guid>
+
+					<description><![CDATA[Vivimos rodeados de índices, valores de referencia y la cuantificación de diferentes elementos, y son una referencia clara a la hora de saber si algo está en una medida adecuada, nos simplifican el entendimiento, la gestión y la vida en general. Un índice o cualquier escala, cumple con la función de poder representar una posición [&#8230;]]]></description>
+		
+		
+		
+			</item>
+		<item>
+		<title>¿Cómo puedo desarrollar la sostenibilidad física de mi empresa?</title>
+		<link>https://motricidadlaboral.com/como-puedo-desarrollar-la-sostenibilidad-fisica-de-mi-empresa/</link>
+		
+		<dc:creator><![CDATA[Comunicación Motricidad]]></dc:creator>
+		<pubDate>Tue, 09 Nov 2021 21:33:26 +0000</pubDate>
+				<category><![CDATA[Noticias]]></category>
+		<guid isPermaLink="false">https://motricidadlaboral.com/?p=4745</guid>
+
+					<description><![CDATA[&#160; Todas las organizaciones que tengan la ambición de perdurar en el tiempo necesitan sustentarse en modelos de negocio que sean sostenibles. Generalmente al hablar de la sostenibilidad de una empresa pensamos o hacemos referencia a la sostenibilidad medioambiental. Sin embargo, la sostenibilidad social de la empresa, la que hace referencia a cómo se desarrolla [&#8230;]]]></description>
+		
+		
+		
+			</item>
+		<item>
+		<title>Los trastornos musculoesqueléticos en cifras.</title>
+		<link>https://motricidadlaboral.com/los-trastornos-musculoesqueleticos-en-cifras/</link>
+		
+		<dc:creator><![CDATA[Comunicación Motricidad]]></dc:creator>
+		<pubDate>Mon, 27 Sep 2021 06:44:33 +0000</pubDate>
+				<category><![CDATA[Noticias]]></category>
+		<guid isPermaLink="false">https://motricidadlaboral.com/?p=4534</guid>
+
+					<description><![CDATA[]]></description>
+		
+		
+		
+			</item>
+		<item>
+		<title>La sostenibilidad física laboral.</title>
+		<link>https://motricidadlaboral.com/la-sostenibilidad-fisica-laboral/</link>
+		
+		<dc:creator><![CDATA[Comunicación Motricidad]]></dc:creator>
+		<pubDate>Wed, 08 Sep 2021 15:09:32 +0000</pubDate>
+				<category><![CDATA[Noticias]]></category>
+		<guid isPermaLink="false">https://motricidadlaboral.com/?p=4422</guid>
+
+					<description><![CDATA[]]></description>
+		
+		
+		
+			</item>
+	</channel>
+</rss>
