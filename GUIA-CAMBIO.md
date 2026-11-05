@@ -10,7 +10,9 @@ Ya está activado en *Settings → Pages*: *Deploy from a branch*, rama `main`, 
 
 ## 2. Probar antes de cambiar el dominio
 
-La URL de prueba es `https://edupoch.github.io/motricidad-web-estatica/`. Abierta directamente **no sirve como prueba**: las URLs del HTML son absolutas y cargaría los estilos del WordPress. Para comprobarla:
+Abre `https://edupoch.github.io/motricidad-web-estatica/`: todos los recursos y enlaces internos se cargan desde esa misma URL. La página 404 solo se verá con estilos en el dominio definitivo.
+
+Para repetir las pruebas contra ella:
 
 ```bash
 TARGET=https://edupoch.github.io/motricidad-web-estatica npx playwright test

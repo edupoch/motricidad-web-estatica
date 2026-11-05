@@ -10,8 +10,8 @@ Sustituir el WordPress (tema Enfold) de https://motricidadlaboral.com/, que no s
 
 La web publicada es el mismo HTML que genera WordPress y el mismo CSS, sin tocar:
 
-- **CSS y fuentes:** copia idéntica byte a byte. No se añade, se edita ni se minifica ningún CSS.
-- **HTML:** se conserva tal cual, incluidas las URLs absolutas a `https://motricidadlaboral.com/`. Solo se aplican las ediciones de «Únicos cambios».
+- **CSS y fuentes:** copia idéntica byte a byte, salvo las URLs del dominio en 7 archivos CSS (cambio 8). No se añade, se reescribe ni se minifica ningún CSS.
+- **HTML:** se conserva tal cual. Solo se aplican las ediciones de «Únicos cambios».
 - **JS:** copia idéntica, salvo que se retiren los scripts de reCAPTCHA y Analytics, que se quitan del HTML.
 - **Diseño:** no hay ningún cambio. La única excepción acordada es el formulario de `/contacto/`.
 
@@ -36,6 +36,7 @@ La web publicada es el mismo HTML que genera WordPress y el mismo CSS, sin tocar
 5. `/noticias/`: la paginación con `?avia-element-paging=N` no funciona en GitHub Pages. Sus páginas pasan a `/noticias/page/N/`, con el HTML original y cambiando solo esos enlaces. Un enlace antiguo con el parámetro mostrará la primera página.
 6. Los correos ofuscados por Cloudflare (`data-cfemail`) pasan a texto normal y se retira su script `email-decode`. No cambia lo que ve el visitante.
 7. Se retira el script contra bots que Cloudflare añade al HTML (`__CF$cv$params`). Es un añadido de Cloudflare, no de WordPress, y no se ve.
+8. Las URLs absolutas de recursos y enlaces internos pasan a rutas relativas, en HTML y CSS, para que todo se pida al dominio donde se abre la web. Siguen absolutas la canónica, los metadatos, el JSON-LD, los `<link>` técnicos, el sitemap, el feed y el texto. La página 404 usa rutas desde la raíz, porque se sirve desde cualquier ruta: en `github.io`, que está en una subcarpeta, se verá sin estilos.
 
 reCAPTCHA se desactiva quitando del HTML solo la variable `AviaReCAPTCHA_front`: el JS del tema no se toca y, sin ella, no lo carga.
 
@@ -66,14 +67,14 @@ Rediseño, mejoras de contenido o SEO, panel de edición, analítica nueva, form
 
 El resultado no usa generador de sitios: es el HTML de la web original con ediciones puntuales, para no introducir diferencias visuales.
 
-**Consecuencia de conservar las URLs absolutas:** la web solo se verá completa en su propio dominio. Antes del cambio, una visita normal a `*.github.io` cargaría estilos e imágenes del WordPress actual y no demostraría nada. Por eso las pruebas interceptan en el navegador las peticiones a `motricidadlaboral.com` y las sirven desde la copia estática, y cualquier recurso que no exista en ella falla. El archivo `CNAME` se añade en el momento del cambio, no antes, para que GitHub Pages no intente usar el dominio mientras sigue apuntando al WordPress.
+El archivo `CNAME` se añade en el momento del cambio, no antes, para que GitHub Pages no intente usar el dominio mientras sigue apuntando al WordPress.
 
 ## Comandos
 
 ```bash
 python3 -I scripts/mirror.py            # descarga la web original a mirror/
 python3 -I scripts/build.py            # genera docs/ a partir de mirror/
-python3 -I scripts/preview.py           # sirve el resultado en http://localhost:8765/ para verlo
+python3 -m http.server 8765 -d docs    # sirve el resultado en http://localhost:8765/
 npx playwright test                    # enlaces, recursos, dependencias y comparación visual
 ```
 
@@ -108,9 +109,9 @@ def remove_analytics(html: str) -> str:
 
 ## Estrategia de pruebas
 
-Pruebas con Playwright contra `docs/` servido en local, y una pasada final contra la URL de prueba de GitHub Pages, en ambos casos con el dominio interceptado:
+Pruebas con Playwright contra `docs/` servido en local, y una pasada final contra la URL de prueba de GitHub Pages. La mayoría intercepta el dominio original para probar en su URL definitiva; otra abre cada página sin interceptar nada:
 
-- **Copia exacta (la comprobación principal):** cada CSS, fuente, imagen y JS de `docs/` tiene el mismo hash que en `mirror/`. La diferencia de cada HTML con su original contiene solo las ediciones de «Únicos cambios».
+- **Copia exacta (la comprobación principal):** cada CSS, fuente, imagen y JS de `docs/` tiene el mismo hash que en `mirror/`, salvo las URLs del cambio 8. La diferencia de cada HTML con su original contiene solo las ediciones de «Únicos cambios».
 - **Paridad de URLs:** cada URL del alcance responde 200, y las eliminadas responden 404.
 - **Comparación visual:** cada página a 1440 px y 390 px, a página completa y con animaciones congeladas, frente a `baseline/`.
 - **Enlaces y recursos:** ningún enlace interno ni recurso da error, y no hay errores nuevos en consola.
@@ -119,14 +120,14 @@ Pruebas con Playwright contra `docs/` servido en local, y una pasada final contr
 
 ## Límites
 
-- **Siempre:** conservar URLs, textos y marcado originales; generar `docs/` solo mediante `scripts/build.py`; pasar las pruebas antes de dar una tarea por terminada.
+- **Siempre:** conservar las URLs públicas, los textos y el marcado originales; generar `docs/` solo mediante `scripts/build.py`; pasar las pruebas antes de dar una tarea por terminada.
 - **Preguntar antes:** cualquier cambio visible que no esté en la lista de esta spec, cualquier edición de HTML no prevista, añadir dependencias a la web publicada, crear el repositorio o hacer commits y publicar en GitHub.
 - **Nunca:** editar o añadir CSS, remaquetar, modificar los textos legales, tocar el DNS, ni cambiar o apagar el WordPress actual.
 
 ## Criterios de éxito
 
 1. Las 10 páginas, las entradas, las categorías y las etiquetas responden 200 en su URL actual, y las 7 de demo responden 404.
-2. El CSS, las fuentes, las imágenes y el JS de `docs/` son idénticos a los originales, y cada HTML difiere solo en las ediciones de «Únicos cambios».
+2. El CSS (salvo sus URLs), las fuentes, las imágenes y el JS de `docs/` son idénticos a los originales, y cada HTML difiere solo en las ediciones de «Únicos cambios».
 3. La comparación visual no muestra diferencias de diseño en ninguna página ni anchura. Cualquier página con más del 0,1 % de píxeles distintos se revisa a mano, y `/contacto/` se revisa siempre.
 4. No hay enlaces ni recursos rotos, y ninguna petición llega al WordPress.
 5. Todas las interacciones de la estrategia de pruebas funcionan en la URL de prueba de GitHub Pages.

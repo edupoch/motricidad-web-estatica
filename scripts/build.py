@@ -28,6 +28,14 @@ CONTACT_FORM_RE = re.compile(
 )
 CONTACT_LINK = f'<p><a href="mailto:{EMAIL}">{EMAIL}</a></p>'
 PAGING_RE = re.compile(r"noticias/\?avia-element-paging=(\d+)")
+ORIGIN_RE = re.compile(r"https?:(\\?/)\\?/motricidadlaboral\.com(\\?/)?")
+# Texto visible y comentarios quedan fuera: solo se reescriben etiquetas, <style> y <script>.
+MARKUP_RE = re.compile(r"<script\b[^>]*>.*?</script>|<style\b[^>]*>.*?</style>|<!--.*?-->|<[a-zA-Z][^>]*>", re.S)
+# Necesitan la URL absoluta para buscadores y redes sociales.
+KEEP_ABSOLUTE_RE = re.compile(
+    r"""^<!--|^<meta\b|^<script\b[^>]*application/ld\+json|^<link\b(?![^>]*\brel=["']?(?:stylesheet|preload|icon|apple-touch-icon))""",
+    re.I,
+)
 
 applied = Counter()
 
@@ -59,6 +67,44 @@ def remove_recaptcha_var(html):
         raise ValueError("Formato inesperado en la variable de reCAPTCHA")
     applied["recaptcha"] += 1
     return html[:start] + html[end + 1:]
+
+
+def to_prefix(text, prefix):
+    """Cambia el dominio por un prefijo de ruta, respetando la forma escapada de los JSON (\\/)."""
+
+    def repl(match):
+        slash = match.group(1)
+        return prefix.replace("/", slash)
+
+    return ORIGIN_RE.subn(repl, text)
+
+
+def relative_prefix(target):
+    """Prefijo hasta la raíz de la web. La 404 se sirve desde cualquier ruta: solo puede ir desde la raíz."""
+    if target == "404.html":
+        return "/"
+    depth = target.count("/")
+    return "../" * depth or "./"
+
+
+def same_origin_html(html, target):
+    prefix = relative_prefix(target)
+
+    def repl(match):
+        fragment = match.group(0)
+        if KEEP_ABSOLUTE_RE.match(fragment):
+            return fragment
+        result, count = to_prefix(fragment, prefix)
+        applied["url_html"] += count
+        return result
+
+    return MARKUP_RE.sub(repl, html)
+
+
+def same_origin_css(css, target):
+    result, count = to_prefix(css, relative_prefix(target))
+    applied["url_css"] += count
+    return result
 
 
 def transform(html, rel):
@@ -98,9 +144,11 @@ def main():
         target = target_for(rel)
         dest = DOCS / target
         if is_html(rel):
-            data = transform(source.read_bytes().decode("utf-8"), rel).encode("utf-8")
+            data = same_origin_html(transform(source.read_bytes().decode("utf-8"), rel), target).encode("utf-8")
             if target != "404.html":
                 urls.append(target.removesuffix("index.html"))
+        elif target.endswith(".css") and ORIGIN_RE.search(source.read_bytes().decode("utf-8", "replace")):
+            data = same_origin_css(source.read_bytes().decode("utf-8"), target).encode("utf-8")
         else:
             data = source.read_bytes()
         if target in written:

@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import { ACCEPTED_COOKIES, allRoutes, scrollThrough, serveFromCopy, url } from './helpers.js';
+import { ACCEPTED_COOKIES, allRoutes, scrollThrough, serveFromCopy, url, TARGET } from './helpers.js';
 
 const ROUTES = allRoutes();
 const REMOVED = ['/portfolio-item/crossfit/', '/portfolio_entries/classes/', '/wp-json/', '/wp-admin/'];
@@ -108,3 +108,30 @@ test.describe('interacciones', () => {
     await expect(page.locator('.pagination-meta').first()).toHaveText('Página 2 de 4');
   });
 });
+
+// Sin interceptar nada: la web tiene que funcionar por sí sola en el dominio donde se abra.
+for (const route of allRoutes()) {
+  test(`mismo dominio ${route}`, async ({ page }) => {
+    const external = [];
+    const failed = [];
+    page.on('request', (request) => {
+      if (new URL(request.url()).hostname === 'motricidadlaboral.com') external.push(request.url());
+    });
+    page.on('response', (response) => {
+      if (response.status() >= 400 && !/medical\.woff2/.test(response.url())) failed.push(`${response.status()} ${response.url()}`);
+    });
+    await page.goto(TARGET + route, { waitUntil: 'load' });
+    await scrollThrough(page);
+    const state = await page.evaluate(async () => {
+      await document.fonts.ready;
+      return {
+        fonts: [...document.fonts].filter((font) => font.status === 'error').map((font) => font.family),
+        links: [...document.querySelectorAll('a[href]')].filter((a) => a.hostname === 'motricidadlaboral.com').map((a) => a.href),
+        images: [...document.images].filter((img) => img.complete && img.naturalWidth === 0).map((img) => img.src),
+      };
+    });
+    expect(external).toEqual([]);
+    expect(failed).toEqual([]);
+    expect(state).toEqual({ fonts: [], links: [], images: [] });
+  });
+}

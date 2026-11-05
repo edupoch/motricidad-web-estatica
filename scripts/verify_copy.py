@@ -22,6 +22,23 @@ INLINE_REMOVED = re.compile(
 )
 
 
+ABSOLUTE = re.compile(r"https?:\\?/\\?/motricidadlaboral\.com(?:\\?/)?")
+
+
+def neutral_urls(text, prefix):
+    """Iguala la URL absoluta y su prefijo relativo: solo pueden diferir en eso."""
+    text = ABSOLUTE.sub("§", text)
+    for form in (prefix, prefix.replace("/", "\\/")):
+        text = re.sub(r"""(?<=["'(\s,=])""" + re.escape(form), "§", text)
+    return text
+
+
+def prefix_for(target):
+    if target.name == "404.html":
+        return "/"
+    return "../" * (len(target.relative_to(DOCS).parts) - 1) or "./"
+
+
 def without_inline_removed(html):
     html = INLINE_REMOVED.sub("", html)
     marker = "var AviaReCAPTCHA_front = "
@@ -33,7 +50,7 @@ def without_inline_removed(html):
 
 
 errors = []
-checked = {"binarios": 0, "html": 0}
+checked = {"binarios": 0, "html": 0, "css_con_urls": 0}
 hunks = 0
 for source in sorted(p for p in MIRROR.rglob("*") if p.is_file()):
     rel = source.relative_to(MIRROR).as_posix()
@@ -46,8 +63,9 @@ for source in sorted(p for p in MIRROR.rglob("*") if p.is_file()):
     elif rel == "404.html" or rel.split("?", 1)[0].endswith("index.html"):
         checked["html"] += 1
         # Estos fragmentos comparten línea con otro marcado: se retiran para comparar el resto de la línea.
-        a = without_inline_removed(source.read_text(encoding="utf-8")).splitlines()
-        b = target.read_text(encoding="utf-8").splitlines()
+        prefix = prefix_for(target)
+        a = neutral_urls(without_inline_removed(source.read_text(encoding="utf-8")), prefix).splitlines()
+        b = neutral_urls(target.read_text(encoding="utf-8"), prefix).splitlines()
         for op, i1, i2, j1, j2 in difflib.SequenceMatcher(None, a, b, autojunk=False).get_opcodes():
             if op == "equal":
                 continue
@@ -61,8 +79,20 @@ for source in sorted(p for p in MIRROR.rglob("*") if p.is_file()):
                         errors.append(f"{rel}: cambio no previsto: {line[:140]}")
     else:
         checked["binarios"] += 1
-        if hashlib.sha256(source.read_bytes()).digest() != hashlib.sha256(target.read_bytes()).digest():
+        src, dst = source.read_bytes(), target.read_bytes()
+        if target.suffix == ".css" and src != dst:
+            checked["css_con_urls"] += 1
+            prefix = prefix_for(target)
+            src, dst = (neutral_urls(x.decode("utf-8"), prefix).encode("utf-8") for x in (src, dst))
+        if hashlib.sha256(src).digest() != hashlib.sha256(dst).digest():
             errors.append(f"Distinto: {rel}")
+# Lo que debe seguir absoluto para buscadores y redes sociales.
+for page in DOCS.rglob("index.html"):
+    if page.parts[-2] == "feed":
+        continue
+    canonical = re.search(r"""rel=["']canonical["'] href=["']([^"']*)""", page.read_text(encoding="utf-8"))
+    if canonical and not canonical.group(1).startswith("https://motricidadlaboral.com"):
+        errors.append(f"Canónica no absoluta: {page}")
 print(checked, "bloques cambiados:", hunks)
 print("\n".join(errors[:40]))
 sys.exit(1 if errors else 0)
