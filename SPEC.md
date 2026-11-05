@@ -42,7 +42,9 @@ reCAPTCHA se desactiva quitando del HTML solo la variable `AviaReCAPTCHA_front`:
 
 Los fallos que ya tiene la web actual (enlace a `/entorno-activo/`, fuente `medical.woff2` ausente) se dejan como están.
 
-Se mantienen sin cambios Google Maps, Vimeo y el banner de cookies, que sigue bloqueando los servicios externos hasta que se aceptan.
+Se mantienen sin cambios Google Maps, YouTube, el enlace a Vimeo, el vídeo MP4 y el banner de cookies, que sigue bloqueando los servicios externos hasta que se aceptan.
+
+Cloudflare añade al HTML de la web actual una etiqueta de Google (`/fc3l/`, `G-Y5DLKVMXY6`) que no está en WordPress. La copia no la lleva, pero Cloudflare puede seguir añadiéndola si su proxy queda activado (ver `GUIA-CAMBIO.md`).
 
 ### Fuera de alcance
 
@@ -113,10 +115,10 @@ Pruebas con Playwright contra `docs/` servido en local, y una pasada final contr
 
 - **Copia exacta (la comprobación principal):** cada CSS, fuente, imagen y JS de `docs/` tiene el mismo hash que en `mirror/`, salvo las URLs del cambio 8. La diferencia de cada HTML con su original contiene solo las ediciones de «Únicos cambios».
 - **Paridad de URLs:** cada URL del alcance responde 200, y las eliminadas responden 404.
-- **Comparación visual:** cada página a 1440 px y 390 px, a página completa y con animaciones congeladas, frente a `baseline/`.
+- **Comparación visual:** cada página a 1440 px y 390 px, a página completa y con animaciones congeladas, frente a `baseline/`, sin aceptar cookies y con ellas aceptadas (`baseline/accepted/`). Las capturas con cookies se hicieron bloqueando Analytics en la original.
 - **Enlaces y recursos:** ningún enlace interno ni recurso da error, y no hay errores nuevos en consola.
 - **Independencia de WordPress:** ninguna petición llega al servidor original. El navegador no hace peticiones a `admin-ajax.php`, `wp-json`, `xmlrpc` ni `/cdn-cgi/`, y tampoco carga reCAPTCHA ni Analytics. Como el JS del tema no se toca, puede seguir conteniendo código inactivo de esos servicios, pero `UA-53062585-29` desaparece del HTML.
-- **Interacción:** menú móvil, banner de cookies (aceptar, rechazar y carga de Maps y Vimeo solo tras aceptar), galerías y lightbox, enlace `mailto:`.
+- **Interacción:** menú móvil, banner de cookies (aceptar, rechazar y carga de Maps y YouTube solo tras aceptar), lightbox de imágenes, reproducción del MP4, enlace `mailto:`. La web no tiene galerías ni vídeos de Vimeo incrustados: Vimeo es un enlace del menú.
 
 ## Límites
 

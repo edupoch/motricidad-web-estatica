@@ -107,6 +107,50 @@ test.describe('interacciones', () => {
     await expect(page).toHaveURL(/\/noticias\/page\/2\/$/);
     await expect(page.locator('.pagination-meta').first()).toHaveText('Página 2 de 4');
   });
+
+  for (const route of ['/asi-trabaja-motricidad-laboral/', '/que-es-moverse-mejor/', '/moverse-mejor/']) {
+    test(`lightbox ${route}`, async ({ page, context }) => {
+      await context.addCookies(ACCEPTED_COOKIES);
+      await page.goto(url(route));
+      const link = page.locator('#main a:has(img)').and(page.locator('a[href$=".jpg"], a[href$=".png"]')).first();
+      await link.scrollIntoViewIfNeeded();
+      await link.click();
+      const image = page.locator('.mfp-content img.mfp-img');
+      await expect(image).toBeVisible();
+      await expect.poll(() => image.evaluate((img) => img.naturalWidth)).toBeGreaterThan(0);
+      await page.locator('.mfp-close').first().click();
+      await expect(image).toHaveCount(0);
+    });
+  }
+
+  test('vídeo MP4: el reproductor carga el archivo', async ({ page }) => {
+    const status = [];
+    page.on('response', (r) => { if (/\.mp4/.test(r.url())) status.push(r.status()); });
+    await page.goto(url('/category/noticias/'));
+    const video = page.locator('video.wp-video-shortcode, mediaelementwrapper video').first();
+    await video.scrollIntoViewIfNeeded();
+    await expect.poll(() => status.length, { timeout: 20000 }).toBeGreaterThan(0);
+    expect(status.every((code) => code === 200 || code === 206)).toBe(true);
+    await expect(page.locator('.mejs-container, .wp-video').first()).toBeVisible();
+    await video.evaluate((v) => { v.muted = true; return v.play(); });
+    await expect.poll(() => video.evaluate((v) => v.currentTime), { timeout: 20000 }).toBeGreaterThan(0);
+  });
+
+  test('YouTube solo se carga tras aceptar cookies', async ({ page, context }) => {
+    const youtube = [];
+    page.on('request', (r) => { if (/youtube(-nocookie)?\.com|ytimg\.com/.test(r.url())) youtube.push(r.url()); });
+    await page.goto(url('/motricidad-laboral-empresa/'));
+    await page.waitForTimeout(2500);
+    expect(youtube).toEqual([]);
+    await context.addCookies(ACCEPTED_COOKIES);
+    await page.reload();
+    await expect.poll(() => youtube.length, { timeout: 20000 }).toBeGreaterThan(0);
+  });
+
+  test('Vimeo: el enlace del menú se conserva', async ({ page }) => {
+    await page.goto(url('/'));
+    await expect(page.locator('a[href^="https://vimeo.com/"]').first()).toHaveCount(1);
+  });
 });
 
 // Sin interceptar nada: la web tiene que funcionar por sí sola en el dominio donde se abra.

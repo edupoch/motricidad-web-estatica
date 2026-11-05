@@ -1,11 +1,16 @@
 // Capturas de la web original y registro de sus peticiones. Debe ejecutarse con WordPress aún en marcha.
-// Uso: node scripts/capture-baseline.mjs [ruta...]   (sin rutas, recorre todas las páginas de mirror/)
+// Uso: node scripts/capture-baseline.mjs [--cookies] [ruta...]   (sin rutas, recorre todas las páginas de mirror/)
+// Con --cookies captura con las cookies aceptadas, en baseline/accepted/.
 import { chromium } from '@playwright/test';
 import { existsSync, mkdirSync, readdirSync, writeFileSync } from 'node:fs';
 import { join, relative } from 'node:path';
+import { ACCEPTED_COOKIES } from '../tests/helpers.js';
 
 const BASE = 'https://motricidadlaboral.com';
-const OUT = 'baseline';
+const args = process.argv.slice(2);
+const accepted = args[0] === '--cookies';
+if (accepted) args.shift();
+const OUT = accepted ? join('baseline', 'accepted') : 'baseline';
 const WIDTHS = { desktop: [1440, 900], mobile: [390, 844] };
 // Faltan en la web actual: pedirlos suma errores 404 para el bloqueo de Defender.
 const KNOWN_MISSING = /medical\.woff2|^https:\/\/motricidadlaboral\.com\/entorno-activo\/|\/cdn-cgi\/l\//;
@@ -31,7 +36,7 @@ async function scrollThrough(page) {
   });
 }
 
-const routes = process.argv.slice(2).length ? process.argv.slice(2) : pagesFromMirror();
+const routes = args.length ? args : pagesFromMirror();
 const browser = await chromium.launch();
 const requests = new Set();
 let errors = 0;
@@ -39,6 +44,10 @@ let errors = 0;
 for (const [name, [width, height]] of Object.entries(WIDTHS)) {
   const context = await browser.newContext({ viewport: { width, height } });
   await context.route(KNOWN_MISSING, (route) => route.abort());
+  if (accepted) await context.addCookies(ACCEPTED_COOKIES);
+  // La copia no lleva Analytics: sus cookies aparecerían listadas en /politica-de-cookies/.
+  // /fc3l/ es la etiqueta de Google que inyecta Cloudflare, no WordPress.
+  if (accepted) await context.route(/google-analytics\.com|googletagmanager\.com|motricidadlaboral\.com\/fc3l\//, (route) => route.abort());
   context.on('response', (response) => {
     const url = response.url();
     if (!url.startsWith(BASE)) return;
@@ -57,6 +66,8 @@ for (const [name, [width, height]] of Object.entries(WIDTHS)) {
     await page.goto(BASE + route, { waitUntil: 'load', timeout: 60000 });
     await scrollThrough(page);
     await page.waitForTimeout(1500);
+    // La copia no carga reCAPTCHA: su insignia no debe contar como diferencia.
+    if (accepted) await page.addStyleTag({ content: '.grecaptcha-badge { visibility: hidden !important; }' });
     await page.screenshot({ path: file, fullPage: true, animations: 'disabled' });
     await page.close();
     console.log(`ok ${name} ${route}`);
@@ -71,5 +82,5 @@ for (const [name, [width, height]] of Object.entries(WIDTHS)) {
 }
 
 await browser.close();
-writeFileSync(join(OUT, 'requests.txt'), [...requests].sort().join('\n') + '\n');
+if (!accepted) writeFileSync(join(OUT, 'requests.txt'), [...requests].sort().join('\n') + '\n');
 console.log(`Peticiones al dominio: ${requests.size}. Errores: ${errors}.`);

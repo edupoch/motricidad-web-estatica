@@ -59,12 +59,15 @@ Cambia **solo** estos registros, con el proxy desactivado (*DNS only*, nube gris
 2. Marca *Enforce HTTPS*.
 3. Opcional: vuelve a activar el proxy de Cloudflare (nube naranja) con SSL en *Full (strict)*, y purga su caché.
 
+**Antes de reactivar el proxy, revisa la etiqueta de Google que añade Cloudflare.** La web actual recibe de Cloudflare, no de WordPress, una etiqueta de Google (`G-Y5DLKVMXY6`, servida desde `/fc3l/`) que acaba enviando datos a Google Analytics 4 (`G-Y8LYY5DCE9`). Parece la función *Google tag gateway* de Cloudflare. Con el proxy activado, lo previsible es que la siga añadiendo a la web nueva, y Analytics volvería aunque se quitó del HTML. Desactívala en Cloudflare antes, o deja el proxy apagado.
+
 ## 7. Comprobar
 
 - La home y `/contacto/` cargan en `https://motricidadlaboral.com/`, y `www` redirige al dominio sin `www`.
 - Tras pulsar «Conforme», el mapa de `/contacto/` carga. Si falla, revisa las restricciones de la clave de Google Maps.
 - `ACCESO ALUMNOS` sigue funcionando y llega correo a `info@motricidadlaboral.com`.
-- Una URL inexistente muestra la página 404 de la web.
+- Una URL inexistente muestra la página 404 de la web, con su diseño.
+- En el código fuente de la página no aparece `/fc3l/` ni `google_tags_first_party`.
 
 ## Marcha atrás
 
