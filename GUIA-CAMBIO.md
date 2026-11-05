@@ -1,16 +1,12 @@
 # Guía de cambio: de WordPress a GitHub Pages
 
-Repositorio: `edupoch/motricidad-web-estatica` (privado). La web se publica desde la carpeta `docs/` de la rama `main`.
+Repositorio: `edupoch/motricidad-web-estatica` (público). La web se publica desde la carpeta `docs/` de la rama `main`.
 
 **No apagues WordPress hasta que la web lleve unos días funcionando:** es la marcha atrás.
 
-## 1. Activar GitHub Pages
+## 1. GitHub Pages
 
-GitHub solo permite Pages en repositorios privados con un plan de pago (Pro, Team o Enterprise). Con el plan gratuito, la alternativa es hacer público el repositorio.
-
-Aunque el repositorio sea privado, **la web publicada es pública**. Se ve el contenido de `docs/`, no el resto del repositorio.
-
-En *Settings → Pages*: *Deploy from a branch*, rama `main`, carpeta `/docs`.
+Ya está activado en *Settings → Pages*: *Deploy from a branch*, rama `main`, carpeta `/docs`.
 
 ## 2. Probar antes de cambiar el dominio
 

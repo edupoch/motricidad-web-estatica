@@ -62,7 +62,7 @@ Rediseño, mejoras de contenido o SEO, panel de edición, analítica nueva, form
 - **Captura:** rastreador propio en Python y un rastreo con navegador para detectar recursos que solo se piden al ejecutar JS.
 - **Transformación:** Python 3 con biblioteca estándar.
 - **Verificación:** Node con Playwright como dependencia de desarrollo (no llega a la web publicada).
-- **Publicación:** repositorio privado en GitHub (`edupoch/motricidad-web-estatica`), con GitHub Pages desde la carpeta `docs/`, dominio propio y DNS en Cloudflare.
+- **Publicación:** repositorio público en GitHub (`edupoch/motricidad-web-estatica`), con GitHub Pages desde la carpeta `docs/`, dominio propio y DNS en Cloudflare.
 
 El resultado no usa generador de sitios: es el HTML de la web original con ediciones puntuales, para no introducir diferencias visuales.
 
@@ -92,7 +92,7 @@ docs/               → web publicada (incluye .nojekyll y 404.html; CNAME al ha
 
 `mirror/` y `baseline/` deben generarse **antes de apagar WordPress**, porque después no se pueden volver a crear.
 
-El repositorio es privado, pero la web publicada desde `docs/` es pública. La clave de Google Maps ya es visible hoy en el HTML, y conviene que tenga restricción por dominio.
+El repositorio es público: se ve todo su contenido, también `mirror/` y `baseline/`. La clave de Google Maps ya es visible hoy en el HTML, y conviene que tenga restricción por dominio.
 
 ## Estilo de código
 

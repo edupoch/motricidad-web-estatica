@@ -12,6 +12,6 @@
   - Verificar: la diferencia de cada HTML contiene solo estas ediciones.
 - [x] 6. Pruebas de Playwright: URLs, enlaces, independencia de WordPress, visual, interacciones.
   - Verificar: `npx playwright test` en verde y `/contacto/` revisado a mano.
-- [x] 7. Revisión de `mirror/` antes de publicar antes de subirla al repositorio privado.
+- [x] 7. Revisión de `mirror/` antes de publicar antes de publicar el repositorio.
 - [ ] 8. Publicación de prueba en GitHub Pages y repetición de las pruebas.
 - [x] 9. Guía de cambio en `GUIA-CAMBIO.md`: `CNAME`, DNS, SSL de Cloudflare y marcha atrás.
